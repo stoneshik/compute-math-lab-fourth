@@ -163,14 +163,27 @@ class SquareFunction(SolutionFunction):
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
         sx: float = sum(self._initial_data[0])
-        sxx: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sx_3: float = sum([math.pow(x, 3) for x in self._initial_data[0]])
+        sx_4: float = sum([math.pow(x, 4) for x in self._initial_data[0]])
         sy: float = sum(self._initial_data[1])
         sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
-        delta: float = sxx * n - sx * sx
-        delta_1: float = sxy * n - sx * sy
-        delta_2: float = sxx * sy - sx * sxy
-        self._a: float = delta_1 / delta
+        sx_2y: float = sum([math.pow(x, 2) * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = numpy.linalg.det(
+            numpy.array([[n, sx, sx_2], [sx, sx_2, sx_3], [sx_2, sx_3, sx_4]])
+        )
+        delta_1: float = numpy.linalg.det(
+            numpy.array([[sy, sx, sx_2], [sxy, sx_2, sx_3], [sx_2y, sx_3, sx_4]])
+        )
+        delta_2: float = numpy.linalg.det(
+            numpy.array([[n, sy, sx_2], [sx, sxy, sx_3], [sx_2, sx_2y, sx_4]])
+        )
+        delta_3: float = numpy.linalg.det(
+            numpy.array([[n, sx, sy], [sx, sx_2, sxy], [sx_2, sx_3, sx_2y]])
+        )
+        self._a: float = delta_3 / delta
         self._b: float = delta_2 / delta
+        self._c: float = delta_1 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(self._a * x_symbol ** 2 + self._b * x_symbol + self._c)
         return self._form_result()
@@ -221,6 +234,7 @@ def main():
         return
     solution_functions = (
         LinearFunction(initial_data),
+        SquareFunction(initial_data),
     )
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
