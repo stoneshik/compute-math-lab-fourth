@@ -5,7 +5,7 @@ import numpy
 import matplotlib
 import matplotlib.pyplot as plt
 from prettytable import PrettyTable
-from sympy import diff, latex, sin, exp, Symbol
+from sympy import diff, latex, exp, Symbol, ln
 
 from manager_io import InputManager, OutputManager
 
@@ -231,6 +231,78 @@ class CubeFunction(SolutionFunction):
         return self._form_result()
 
 
+class ExpFunction(SolutionFunction):
+    def __init__(self, initial_data: list) -> None:
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*exp(bx)', 'εi'], '𝝋 = a*exp(bx)', initial_data)
+
+    def calc(self) -> PrettyTable:
+        n: int = len(self._initial_data[0])
+        sx: float = sum(self._initial_data[0])
+        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sy: float = sum(self._initial_data[1])
+        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = sx_2 * n - sx * sx
+        delta_1: float = sx_2 * sy - sx * sxy
+        delta_2: float = sxy * n - sx * sy
+        a_0: float = delta_1 / delta
+        a_1: float = delta_2 / delta
+        self._a: float = math.exp(a_0)
+        self._b: float = a_1
+        x_symbol: Symbol = Symbol('x')
+        self._function_solution = Equation(
+            self._a * x_symbol ** self._b
+        )
+        return self._form_result()
+
+
+class LogarithmFunction(SolutionFunction):
+    def __init__(self, initial_data: list) -> None:
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], '𝝋 = a*x^b', initial_data)
+
+    def calc(self) -> PrettyTable:
+        n: int = len(self._initial_data[0])
+        sx: float = sum(self._initial_data[0])
+        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sy: float = sum(self._initial_data[1])
+        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = sx_2 * n - sx * sx
+        delta_1: float = sx_2 * sy - sx * sxy
+        delta_2: float = sxy * n - sx * sy
+        a_0: float = delta_1 / delta
+        a_1: float = delta_2 / delta
+        self._a: float = math.exp(a_0)
+        self._b: float = a_1
+        x_symbol: Symbol = Symbol('x')
+        self._function_solution = Equation(
+            self._a * ln(x_symbol) + self._b
+        )
+        return self._form_result()
+
+
+class PowerFunction(SolutionFunction):
+    def __init__(self, initial_data: list) -> None:
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], '𝝋 = a*x^b', initial_data)
+
+    def calc(self) -> PrettyTable:
+        n: int = len(self._initial_data[0])
+        sx: float = sum(self._initial_data[0])
+        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sy: float = sum(self._initial_data[1])
+        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = sx_2 * n - sx * sx
+        delta_1: float = sx_2 * sy - sx * sxy
+        delta_2: float = sxy * n - sx * sy
+        a_0: float = delta_1 / delta
+        a_1: float = delta_2 / delta
+        self._a: float = math.exp(a_0)
+        self._b: float = a_1
+        x_symbol: Symbol = Symbol('x')
+        self._function_solution = Equation(
+            self._a * exp(self._b * x_symbol)
+        )
+        return self._form_result()
+
+
 def create_table_result(solution_functions: tuple) -> PrettyTable:
     table: PrettyTable = PrettyTable()
     table.field_names = ['Вид функции', 'a', 'b', 'c', 'd', 'Мера отклонения S',
@@ -251,21 +323,21 @@ def find_best_function(solution_functions: tuple) -> str:
 
 
 def draw(functions: iter, initial_data: list) -> None:
-    plt.figure()
-    plt.xlabel(r'$x$', fontsize=14)
-    plt.ylabel(r'$y$', fontsize=14)
-    plt.title(r'Графики полученных функций')
-    x = Symbol('x')
-    x_values = numpy.arange(initial_data[0][0] - 1, initial_data[0][-1] + 1, 0.01)
+    x_symbol = Symbol('x')
+    x_values = numpy.arange(initial_data[0][0] - 0.01, initial_data[0][-1] + 0.01, 0.01)
     for func in functions:
-        y_values = [func.function_solution.equation_func.subs(x, x_iter) for x_iter in x_values]
+        plt.figure()
+        plt.xlabel(r'$x$', fontsize=14)
+        plt.ylabel(r'$y$', fontsize=14)
+        plt.title(r'Графики полученных функций')
+        y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
         plt.plot(x_values, y_values)
-    x_values = []
-    y_values = []
-    for x, y in zip(initial_data[0], initial_data[1]):
-        x_values.append(x)
-        y_values.append(y)
-    plt.scatter(x_values, y_values, color='red', marker='o')
+        x_values_second = []
+        y_values_second = []
+        for x, y in zip(initial_data[0], initial_data[1]):
+            x_values_second.append(x)
+            y_values_second.append(y)
+        plt.scatter(x_values_second, y_values_second, color='red', marker='o')
     plt.show()
 
 
@@ -278,6 +350,8 @@ def main():
         LinearFunction(initial_data),
         SquareFunction(initial_data),
         CubeFunction(initial_data),
+        ExpFunction(initial_data),
+        PowerFunction(initial_data),
     )
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
