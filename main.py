@@ -38,6 +38,7 @@ class SolutionFunction(ABC):
         self._a: float = 0.0
         self._b: float = 0.0
         self._c: float = 0.0
+        self._d: float = 0.0
         self._s: float = 0.0  # мера отклонения
         self._delta: float = 0.0  # среднеквадратичное отклонение
         self._r_square: float = 0.0  # достоверность аппроксимации
@@ -61,6 +62,10 @@ class SolutionFunction(ABC):
     @property
     def c(self) -> float:
         return self._c
+
+    @property
+    def d(self) -> float:
+        return self._d
 
     @property
     def s(self) -> float:
@@ -94,6 +99,20 @@ class SolutionFunction(ABC):
                         1 / n * pow(sum([phi.subs(x_symbol, x) for x in self._initial_data[0]]), 2))
                     )
                 )
+
+    def _form_result(self) -> PrettyTable:
+        x_symbol: Symbol = Symbol('x')
+        table: PrettyTable = PrettyTable()
+        table.field_names = self._field_names_table
+        i: int = 1
+        for x, y in zip(self._initial_data[0], self._initial_data[1]):
+            f_x: float = self._function_solution.equation_func.subs(x_symbol, x)
+            self._s += (f_x - y) ** 2
+            table.add_row([i, x, y, f_x, f_x - y])
+            i += 1
+        self._delta = self._calc_delta()
+        self._r_square = self._calc_r_square()
+        return table
 
     @abstractmethod
     def calc(self) -> PrettyTable:
@@ -131,29 +150,39 @@ class LinearFunction(SolutionFunction):
         self._b: float = delta_2 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(self._a * x_symbol + self._b)
-        table: PrettyTable = PrettyTable()
-        table.field_names = self._field_names_table
-        i: int = 1
-        for x, y in zip(self._initial_data[0], self._initial_data[1]):
-            f_x: float = self._function_solution.equation_func.subs(x_symbol, x)
-            self._s += (f_x - y) ** 2
-            table.add_row([i, x, y, f_x, f_x - y])
-            i += 1
-        self._delta = self._calc_delta()
-        self._r_square = self._calc_r_square()
-        return table
+        return self._form_result()
 
     def output_result(self) -> str:
         return f"Коэффициент корреляции Пирсона {self._r}\n"
 
 
+class SquareFunction(SolutionFunction):
+    def __init__(self, initial_data: list) -> None:
+        super().__init__(['i', 'X', 'Y', 'P2(x)=ax^2+bx+c', 'εi'], '𝝋 = ax^2+bx+c', initial_data)
+
+    def calc(self) -> PrettyTable:
+        n: int = len(self._initial_data[0])
+        sx: float = sum(self._initial_data[0])
+        sxx: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sy: float = sum(self._initial_data[1])
+        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = sxx * n - sx * sx
+        delta_1: float = sxy * n - sx * sy
+        delta_2: float = sxx * sy - sx * sxy
+        self._a: float = delta_1 / delta
+        self._b: float = delta_2 / delta
+        x_symbol: Symbol = Symbol('x')
+        self._function_solution = Equation(self._a * x_symbol ** 2 + self._b * x_symbol + self._c)
+        return self._form_result()
+
+
 def create_table_result(solution_functions: tuple) -> PrettyTable:
     table: PrettyTable = PrettyTable()
-    table.field_names = ['Вид функции', 'a', 'b', 'c', 'Мера отклонения S',
+    table.field_names = ['Вид функции', 'a', 'b', 'c', 'd', 'Мера отклонения S',
                          'Среднеквадратическое отклонение 𝛿', 'Достоверность аппроксимации R^2']
     for solution_function in solution_functions:
         table.add_row([solution_function.kind_function, solution_function.a,
-                       solution_function.b, solution_function.c,
+                       solution_function.b, solution_function.c, solution_function.d,
                        solution_function.s, solution_function.delta, solution_function.r_square])
     return table
 
