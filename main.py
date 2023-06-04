@@ -261,17 +261,15 @@ class LogarithmFunction(SolutionFunction):
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
-        sx: float = sum(self._initial_data[0])
-        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sx: float = sum([math.log(x) for x in self._initial_data[0]])
+        sx_2: float = sum([math.pow(math.log(x), 2) for x in self._initial_data[0]])
         sy: float = sum(self._initial_data[1])
-        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        sxy: float = sum([math.log(x) * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
         delta: float = sx_2 * n - sx * sx
-        delta_1: float = sx_2 * sy - sx * sxy
-        delta_2: float = sxy * n - sx * sy
-        a_0: float = delta_1 / delta
-        a_1: float = delta_2 / delta
-        self._a: float = math.exp(a_0)
-        self._b: float = a_1
+        delta_1: float = sxy * n - sx * sy
+        delta_2: float = sx_2 * sy - sx * sxy
+        self._a: float = delta_1 / delta
+        self._b: float = delta_2 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(
             self._a * ln(x_symbol) + self._b
