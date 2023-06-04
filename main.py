@@ -325,7 +325,7 @@ def draw(functions: iter, initial_data: list) -> None:
     x_values = numpy.arange(initial_data[0][0] - 0.5, initial_data[0][-1] + 0.5, 0.01)
     for func in functions:
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
-        plt.plot(x_values, y_values, linestyle='--', label=f"{func.kind_function}")
+        plt.plot(x_values, y_values, linestyle='--', label=f"${func.kind_function}$")
     plt.legend(loc='upper left')
     x_values = []
     y_values = []
