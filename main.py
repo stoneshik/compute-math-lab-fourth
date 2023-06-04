@@ -322,7 +322,7 @@ def draw(functions: iter, initial_data: list) -> None:
     plt.ylabel(r'$y$', fontsize=14)
     plt.title(r'Графики полученных функций')
     x_symbol = Symbol('x')
-    x_values = numpy.arange(initial_data[0][0] - 0.1, initial_data[0][-1] + 0.1, 0.01)
+    x_values = numpy.arange(initial_data[0][0] - 0.5, initial_data[0][-1] + 0.5, 0.01)
     for func in functions:
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
         plt.plot(x_values, y_values, linestyle='--', label=f"{func.kind_function}")
