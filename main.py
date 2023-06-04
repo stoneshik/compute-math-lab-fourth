@@ -239,18 +239,16 @@ class ExpFunction(SolutionFunction):
         n: int = len(self._initial_data[0])
         sx: float = sum(self._initial_data[0])
         sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
-        sy: float = sum(self._initial_data[1])
-        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        sy: float = sum([math.log(y) for y in self._initial_data[1]])
+        sxy: float = sum([x * math.log(y) for x, y in zip(self._initial_data[0], self._initial_data[1])])
         delta: float = sx_2 * n - sx * sx
         delta_1: float = sx_2 * sy - sx * sxy
         delta_2: float = sxy * n - sx * sy
-        a_0: float = delta_1 / delta
-        a_1: float = delta_2 / delta
-        self._a: float = math.exp(a_0)
-        self._b: float = a_1
+        self._a: float = math.exp(delta_1 / delta)
+        self._b: float = delta_2 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(
-            self._a * x_symbol ** self._b
+            self._a * exp(self._b * x_symbol)
         )
         return self._form_result()
 
@@ -283,20 +281,18 @@ class PowerFunction(SolutionFunction):
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
-        sx: float = sum(self._initial_data[0])
-        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
-        sy: float = sum(self._initial_data[1])
-        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        sx: float = sum([math.log(x) for x in self._initial_data[0]])
+        sx_2: float = sum([math.pow(math.log(x), 2) for x in self._initial_data[0]])
+        sy: float = sum([math.log(y) for y in self._initial_data[1]])
+        sxy: float = sum([math.log(x) * math.log(y) for x, y in zip(self._initial_data[0], self._initial_data[1])])
         delta: float = sx_2 * n - sx * sx
         delta_1: float = sx_2 * sy - sx * sxy
         delta_2: float = sxy * n - sx * sy
-        a_0: float = delta_1 / delta
-        a_1: float = delta_2 / delta
-        self._a: float = math.exp(a_0)
-        self._b: float = a_1
+        self._a: float = math.exp(delta_1 / delta)
+        self._b: float = delta_2 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(
-            self._a * exp(self._b * x_symbol)
+            self._a * x_symbol ** self._b
         )
         return self._form_result()
 
@@ -321,21 +317,21 @@ def find_best_function(solution_functions: tuple) -> str:
 
 
 def draw(functions: iter, initial_data: list) -> None:
+    plt.figure()
+    plt.xlabel(r'$x$', fontsize=14)
+    plt.ylabel(r'$y$', fontsize=14)
+    plt.title(r'Графики полученных функций')
     x_symbol = Symbol('x')
     x_values = numpy.arange(initial_data[0][0] - 0.01, initial_data[0][-1] + 0.01, 0.01)
     for func in functions:
-        plt.figure()
-        plt.xlabel(r'$x$', fontsize=14)
-        plt.ylabel(r'$y$', fontsize=14)
-        plt.title(r'Графики полученных функций')
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
         plt.plot(x_values, y_values)
-        x_values_second = []
-        y_values_second = []
-        for x, y in zip(initial_data[0], initial_data[1]):
-            x_values_second.append(x)
-            y_values_second.append(y)
-        plt.scatter(x_values_second, y_values_second, color='red', marker='o')
+    x_values = []
+    y_values = []
+    for x, y in zip(initial_data[0], initial_data[1]):
+        x_values.append(x)
+        y_values.append(y)
+    plt.scatter(x_values, y_values, color='red', marker='o')
     plt.show()
 
 
@@ -349,6 +345,7 @@ def main():
         SquareFunction(initial_data),
         CubeFunction(initial_data),
         ExpFunction(initial_data),
+        LogarithmFunction(initial_data),
         PowerFunction(initial_data),
     )
     output_manager: OutputManager = OutputManager()
