@@ -313,6 +313,8 @@ def create_table_result(solution_functions: tuple) -> PrettyTable:
     table.field_names = ['Вид функции', 'a', 'b', 'c', 'd', 'Мера отклонения S',
                          'Среднеквадратическое отклонение 𝛿', 'Достоверность аппроксимации R^2']
     for solution_function in solution_functions:
+        if not solution_function.is_calc:
+            continue
         table.add_row([solution_function.kind_function, solution_function.a,
                        solution_function.b, solution_function.c, solution_function.d,
                        solution_function.s, solution_function.delta, solution_function.r_square])
@@ -322,6 +324,8 @@ def create_table_result(solution_functions: tuple) -> PrettyTable:
 def find_best_function(solution_functions: tuple) -> str:
     best_function: SolutionFunction = solution_functions[0]
     for solution_function in solution_functions:
+        if not solution_function.is_calc:
+            continue
         if solution_function.delta < best_function.delta:
             best_function = solution_function
     return f"Наилучшая аппроксимирующая функция {best_function.kind_function}\na={best_function.a}\nb={best_function.b}\nc={best_function.c}\ns={best_function.s}\n𝛿={best_function.delta}\nR^2={best_function.r_square}"
@@ -333,12 +337,17 @@ def draw(functions: iter, initial_data: list) -> None:
     plt.ylabel(r'$y$', fontsize=14)
     plt.title(r'Графики полученных функций')
     x_symbol = Symbol('x')
-    x_values = numpy.arange(initial_data[0][0] - 0.5, initial_data[0][-1] + 0.5, 0.01)
+    x_values = numpy.arange(initial_data[0][0] - 0.2, initial_data[0][-1] + 0.2, 0.01)
     for func in functions:
         if not func.is_calc:
             continue
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
-        plt.plot(x_values, y_values, linestyle='--', label=f"${func.kind_function}$")
+        try:
+            plt.plot(x_values, y_values, linestyle='--', label=f"${func.kind_function}$")
+        except TypeError:
+            x_values_error = numpy.arange(initial_data[0][0], initial_data[0][-1], 0.01)
+            y_values_error = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values_error]
+            plt.plot(x_values_error, y_values_error, linestyle='--', label=f"${func.kind_function}$")
     plt.legend(loc='upper left')
     x_values = []
     y_values = []
