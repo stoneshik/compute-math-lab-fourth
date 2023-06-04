@@ -9,15 +9,6 @@ from sympy import diff, latex, sin, exp, Symbol
 from io import InputManager, OutputManager
 
 
-class Dot:
-    """
-    Класс обёртка для точки
-    """
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
-
-
 class Equation:
     """
     Класс обертка для функций
@@ -101,15 +92,15 @@ def draw(functions: iter, initial_data: list) -> None:
     plt.ylabel(r'$F(x)$', fontsize=14)
     plt.title(r'Графики полученных функций')
     x = Symbol('x')
-    x_values = numpy.arange(initial_data[0].x - 1, initial_data[-1].x + 1, 0.01)
+    x_values = numpy.arange(initial_data[0][0] - 1, initial_data[0][-1] + 1, 0.01)
     for func in functions:
         y_values = [func.equation_func.subs(x, x_iter) for x_iter in x_values]
         plt.plot(x_values, y_values)
     x_values = []
     y_values = []
-    for i in initial_data:
-        x_values.append(i.x)
-        y_values.append(i.y)
+    for x, y in zip(initial_data):
+        x_values.append(x)
+        y_values.append(y)
     plt.scatter(x_values, y_values, color='red', marker='o')
     plt.show()
 

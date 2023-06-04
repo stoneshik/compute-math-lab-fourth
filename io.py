@@ -1,6 +1,3 @@
-from main import Dot
-
-
 class InputManager:
     def __init__(self) -> None:
         self._method_input: int = 1
@@ -28,15 +25,16 @@ class InputManager:
                 print("Количество вводимых точек должно находится в интервале от 8 до 12")
                 continue
             break
-        initial_data: list = []
+        initial_data: list = [[], []]
         print("Вводите значения X и Y через пробел")
         for _ in range(n):
             x, y = (float(i) for i in input().split())
-            initial_data.append(Dot(x, y))
+            initial_data[0].append(x)
+            initial_data[1].append(y)
         return initial_data
 
     def _input_from_file(self) -> (list, None):
-        initial_data: list = []
+        initial_data: list = [[], []]
         with open(self._file_path, 'r', encoding='utf-8') as file:
             n: int = int(file.readline())
             if not (8 <= n <= 12):
@@ -44,7 +42,8 @@ class InputManager:
                 return None
             for _ in range(n):
                 x, y = (float(i) for i in file.readline().split())
-                initial_data.append(Dot(x, y))
+                initial_data[0].append(x)
+                initial_data[1].append(y)
         return initial_data
 
 
