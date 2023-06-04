@@ -189,6 +189,48 @@ class SquareFunction(SolutionFunction):
         return self._form_result()
 
 
+class CubeFunction(SolutionFunction):
+    def __init__(self, initial_data: list) -> None:
+        super().__init__(['i', 'X', 'Y', 'P3(x)=ax^3+bx^2+cx+d', 'εi'], '𝝋 = ax^3+bx^2+cx+d', initial_data)
+
+    def calc(self) -> PrettyTable:
+        n: int = len(self._initial_data[0])
+        sx: float = sum(self._initial_data[0])
+        sx_2: float = sum([math.pow(x, 2) for x in self._initial_data[0]])
+        sx_3: float = sum([math.pow(x, 3) for x in self._initial_data[0]])
+        sx_4: float = sum([math.pow(x, 4) for x in self._initial_data[0]])
+        sx_5: float = sum([math.pow(x, 5) for x in self._initial_data[0]])
+        sx_6: float = sum([math.pow(x, 6) for x in self._initial_data[0]])
+        sy: float = sum(self._initial_data[1])
+        sxy: float = sum([x * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        sx_2y: float = sum([math.pow(x, 2) * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        sx_3y: float = sum([math.pow(x, 3) * y for x, y in zip(self._initial_data[0], self._initial_data[1])])
+        delta: float = numpy.linalg.det(numpy.array(
+            [[n, sx, sx_2, sx_3], [sx, sx_2, sx_3, sx_4], [sx_2, sx_3, sx_4, sx_5], [sx_3, sx_4, sx_5, sx_6]]
+        ))
+        delta_1: float = numpy.linalg.det(numpy.array(
+            [[sy, sx, sx_2, sx_3], [sxy, sx_2, sx_3, sx_4], [sx_2y, sx_3, sx_4, sx_5], [sx_3y, sx_4, sx_5, sx_6]]
+        ))
+        delta_2: float = numpy.linalg.det(numpy.array(
+            [[n, sy, sx_2, sx_3], [sx, sxy, sx_3, sx_4], [sx_2, sx_2y, sx_4, sx_5], [sx_3, sx_3y, sx_5, sx_6]]
+        ))
+        delta_3: float = numpy.linalg.det(numpy.array(
+            [[n, sx, sy, sx_3], [sx, sx_2, sxy, sx_4], [sx_2, sx_3, sx_2y, sx_5], [sx_3, sx_4, sx_3y, sx_6]]
+        ))
+        delta_4: float = numpy.linalg.det(numpy.array(
+            [[n, sx, sx_2, sy], [sx, sx_2, sx_3, sxy], [sx_2, sx_3, sx_4, sx_2y], [sx_3, sx_4, sx_5, sx_3y]]
+        ))
+        self._a: float = delta_4 / delta
+        self._b: float = delta_3 / delta
+        self._c: float = delta_2 / delta
+        self._d: float = delta_1 / delta
+        x_symbol: Symbol = Symbol('x')
+        self._function_solution = Equation(
+            self._a * x_symbol ** 3 + self._b * x_symbol ** 2 + self._c * x_symbol + self._d
+        )
+        return self._form_result()
+
+
 def create_table_result(solution_functions: tuple) -> PrettyTable:
     table: PrettyTable = PrettyTable()
     table.field_names = ['Вид функции', 'a', 'b', 'c', 'd', 'Мера отклонения S',
@@ -235,6 +277,7 @@ def main():
     solution_functions = (
         LinearFunction(initial_data),
         SquareFunction(initial_data),
+        CubeFunction(initial_data),
     )
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
