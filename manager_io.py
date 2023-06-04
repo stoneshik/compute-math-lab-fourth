@@ -65,6 +65,9 @@ class OutputManager:
         if num_variant == 1:
             return
         self._file_path: str = input("Введите название файла\n")
+        file = open(self._file_path, 'w')
+        file.close()
+
 
     def output(self, data) -> None:
         if self._method_output == 2:
@@ -76,5 +79,5 @@ class OutputManager:
         print(str(data))
 
     def _print_in_file(self, data) -> None:
-        with open(self._file_path, 'w', encoding='utf-8') as file:
+        with open(self._file_path, 'a', encoding='utf-8') as file:
             file.write(str(data))

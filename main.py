@@ -351,9 +351,9 @@ def main():
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
     for solution_function in solution_functions:
-        output_manager.output(solution_function.calc())
+        output_manager.output(f"{solution_function.calc()}\n")
         output_manager.output(solution_function.output_result())
-    output_manager.output(create_table_result(solution_functions))
+    output_manager.output(f"{create_table_result(solution_functions)}\n")
     output_manager.output(find_best_function(solution_functions))
     draw(solution_functions, initial_data)
 
