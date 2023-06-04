@@ -46,7 +46,7 @@ class SolutionFunction(ABC):
         self._c: float = 0.0
         self._s: float = 0.0  # мера отклонения
         self._delta: float = 0.0  # среднеквадратичное отклонение
-        self._r: float = 0.0  # достоверность аппроксимации
+        self._R: float = 0.0  # достоверность аппроксимации
 
     @abstractmethod
     def calc(self) -> PrettyTable:
@@ -59,10 +59,37 @@ class SolutionFunction(ABC):
 
 class LinearFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['X', 'Y', 'P1(x)=ax+b', 'εi'], '𝝋 = ax + b', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P1(x)=ax+b', 'εi'], '𝝋 = ax + b', initial_data)
+        self._r: float = 0.0  # коэффициент корреляции
 
     def calc(self) -> PrettyTable:
-        pass
+        n: int = len(self._initial_data)
+        sx: float = 0
+        sxx: float = 0
+        sy: float = 0
+        sxy: float = 0
+        delta: float = sxx * n - sx * sx
+        delta_1: float = sxy * n - sx * sy
+        delta_2: float = sxx * sy - sx * sxy
+        self._a: float = delta_1 / delta
+        self._b: float = delta_2 / delta
+        x: Symbol = Symbol('x')
+        self._function_solution = self._a * x + self._b
+        table: PrettyTable = PrettyTable()
+        table.field_names = self._field_names_table
+        x_mean: float = 0.0
+        y_mean: float = 0.0
+        for i, dot in enumerate(self._initial_data):
+            f_x: float = self._function_solution.subs(x, dot.x)
+            self._s += (f_x - dot.y) ** 2
+            x_mean += dot.x
+            y_mean += dot.y
+            table.add_row([i + 1, dot.x, dot.y, f_x, f_x - dot.y])
+        x_mean /= n
+        y_mean /= n
+        for dot in self._initial_data:
+
+        return table
 
     def output_result(self) -> str:
         pass
