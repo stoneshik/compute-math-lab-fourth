@@ -43,8 +43,36 @@ class SolutionFunction(ABC):
         self._r_square: float = 0.0  # достоверность аппроксимации
 
     @property
+    def kind_function(self) -> str:
+        return self._kind_function
+
+    @property
     def function_solution(self) -> Equation:
         return self._function_solution
+
+    @property
+    def a(self) -> float:
+        return self._a
+
+    @property
+    def b(self) -> float:
+        return self._b
+
+    @property
+    def c(self) -> float:
+        return self._c
+
+    @property
+    def s(self) -> float:
+        return self._s
+
+    @property
+    def delta(self) -> float:
+        return self._delta
+
+    @property
+    def r_square(self) -> float:
+        return self._r_square
 
     def _calc_delta(self) -> float:
         x_symbol: Symbol = Symbol('x')
@@ -119,10 +147,29 @@ class LinearFunction(SolutionFunction):
         return f"Коэффициент корреляции Пирсона {self._r}\n"
 
 
+def create_table_result(solution_functions: tuple) -> PrettyTable:
+    table: PrettyTable = PrettyTable()
+    table.field_names = ['Вид функции', 'a', 'b', 'c', 'Мера отклонения S',
+                         'Среднеквадратическое отклонение 𝛿', 'Достоверность аппроксимации R^2']
+    for solution_function in solution_functions:
+        table.add_row([solution_function.kind_function, solution_function.a,
+                       solution_function.b, solution_function.c,
+                       solution_function.s, solution_function.delta, solution_function.r_square])
+    return table
+
+
+def find_best_function(solution_functions: tuple) -> str:
+    best_function: SolutionFunction = solution_functions[0]
+    for solution_function in solution_functions:
+        if solution_function.delta < best_function.delta:
+            best_function = solution_function
+    return f"Наилучшая аппроксимирующая функция {best_function.kind_function}\na={best_function.a}\nb={best_function.b}\nc={best_function.c}\ns={best_function.s}\n𝛿={best_function.delta}\nR^2={best_function.r_square}"
+
+
 def draw(functions: iter, initial_data: list) -> None:
     plt.figure()
     plt.xlabel(r'$x$', fontsize=14)
-    plt.ylabel(r'$F(x)$', fontsize=14)
+    plt.ylabel(r'$y$', fontsize=14)
     plt.title(r'Графики полученных функций')
     x = Symbol('x')
     x_values = numpy.arange(initial_data[0][0] - 1, initial_data[0][-1] + 1, 0.01)
@@ -151,6 +198,8 @@ def main():
     for solution_function in solution_functions:
         output_manager.output(solution_function.calc())
         output_manager.output(solution_function.output_result())
+    output_manager.output(create_table_result(solution_functions))
+    output_manager.output(find_best_function(solution_functions))
     draw(solution_functions, initial_data)
 
 
