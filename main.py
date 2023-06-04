@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from prettytable import PrettyTable
 from sympy import diff, latex, sin, exp, Symbol
 
+from manager_io import InputManager, OutputManager
+
 
 class Dot:
     """
@@ -86,15 +88,17 @@ def draw(functions: iter, initial_data: list) -> None:
 
 
 def main():
-    x = Symbol('x')
-    initial_data: list = input_data()
+    input_manager: InputManager = InputManager()
+    initial_data: list = input_manager.input()
     solution_functions = (
         LinearFunction(initial_data),
     )
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
     for solution_function in solution_functions:
-
+        output_manager.output(solution_function.calc())
+        output_manager.output(solution_function.output_result())
+    draw(solution_functions, initial_data)
 
 
 if __name__ == '__main__':
