@@ -124,7 +124,7 @@ class SolutionFunction(ABC):
 
 class LinearFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P1(x)=ax+b', 'εi'], '𝝋 = ax + b', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P1(x)=ax+b', 'εi'], 'phi = ax + b', initial_data)
         self._r: float = self._calc_r()  # коэффициент корреляции
 
     def _calc_r(self) -> float:
@@ -158,7 +158,7 @@ class LinearFunction(SolutionFunction):
 
 class SquareFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P2(x)=ax^2+bx+c', 'εi'], '𝝋 = ax^2+bx+c', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P2(x)=ax^2+bx+c', 'εi'], 'phi = ax^2+bx+c', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -191,7 +191,7 @@ class SquareFunction(SolutionFunction):
 
 class CubeFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P3(x)=ax^3+bx^2+cx+d', 'εi'], '𝝋 = ax^3+bx^2+cx+d', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P3(x)=ax^3+bx^2+cx+d', 'εi'], 'phi = ax^3+bx^2+cx+d', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -233,7 +233,7 @@ class CubeFunction(SolutionFunction):
 
 class ExpFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P(x)=a*exp(bx)', 'εi'], '𝝋 = a*exp(bx)', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*exp(bx)', 'εi'], 'phi = a*exp(bx)', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -255,7 +255,7 @@ class ExpFunction(SolutionFunction):
 
 class LogarithmFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], '𝝋 = a*x^b', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], 'phi = a*x^b', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -277,7 +277,7 @@ class LogarithmFunction(SolutionFunction):
 
 class PowerFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], '𝝋 = a*x^b', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], 'phi = a*x^b', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -322,10 +322,11 @@ def draw(functions: iter, initial_data: list) -> None:
     plt.ylabel(r'$y$', fontsize=14)
     plt.title(r'Графики полученных функций')
     x_symbol = Symbol('x')
-    x_values = numpy.arange(initial_data[0][0] - 0.01, initial_data[0][-1] + 0.01, 0.01)
+    x_values = numpy.arange(initial_data[0][0] - 0.1, initial_data[0][-1] + 0.1, 0.01)
     for func in functions:
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
-        plt.plot(x_values, y_values)
+        plt.plot(x_values, y_values, linestyle='--', label=f"{func.kind_function}")
+    plt.legend(loc='upper left')
     x_values = []
     y_values = []
     for x, y in zip(initial_data[0], initial_data[1]):
