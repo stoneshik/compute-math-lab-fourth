@@ -20,7 +20,7 @@ class InputManager:
 
     def _input_from_console(self) -> list:
         while True:
-            n: int = int(input("Введите количество вводимых точек..."))
+            n: int = int(input("Введите количество вводимых точек...\n"))
             if not (8 <= n <= 12):
                 print("Количество вводимых точек должно находится в интервале от 8 до 12")
                 continue

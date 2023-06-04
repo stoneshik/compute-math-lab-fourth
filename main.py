@@ -42,6 +42,7 @@ class SolutionFunction(ABC):
         self._s: float = 0.0  # мера отклонения
         self._delta: float = 0.0  # среднеквадратичное отклонение
         self._r_square: float = 0.0  # достоверность аппроксимации
+        self._is_calc: bool = False
 
     @property
     def kind_function(self) -> str:
@@ -78,6 +79,10 @@ class SolutionFunction(ABC):
     @property
     def r_square(self) -> float:
         return self._r_square
+
+    @property
+    def is_calc(self) -> bool:
+        return self._is_calc
 
     def _calc_delta(self) -> float:
         x_symbol: Symbol = Symbol('x')
@@ -150,6 +155,7 @@ class LinearFunction(SolutionFunction):
         self._b: float = delta_2 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(self._a * x_symbol + self._b)
+        self._is_calc = True
         return self._form_result()
 
     def output_result(self) -> str:
@@ -186,6 +192,7 @@ class SquareFunction(SolutionFunction):
         self._c: float = delta_1 / delta
         x_symbol: Symbol = Symbol('x')
         self._function_solution = Equation(self._a * x_symbol ** 2 + self._b * x_symbol + self._c)
+        self._is_calc = True
         return self._form_result()
 
 
@@ -228,12 +235,13 @@ class CubeFunction(SolutionFunction):
         self._function_solution = Equation(
             self._a * x_symbol ** 3 + self._b * x_symbol ** 2 + self._c * x_symbol + self._d
         )
+        self._is_calc = True
         return self._form_result()
 
 
 class ExpFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P(x)=a*exp(bx)', 'εi'], 'phi = a*exp(bx)', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*e^{bx}', 'εi'], 'phi = a*e^{bx}', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -250,12 +258,13 @@ class ExpFunction(SolutionFunction):
         self._function_solution = Equation(
             self._a * exp(self._b * x_symbol)
         )
+        self._is_calc = True
         return self._form_result()
 
 
 class LogarithmFunction(SolutionFunction):
     def __init__(self, initial_data: list) -> None:
-        super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], 'phi = a*x^b', initial_data)
+        super().__init__(['i', 'X', 'Y', 'P(x)=a*lnx+b', 'εi'], 'phi = a*lnx+b', initial_data)
 
     def calc(self) -> PrettyTable:
         n: int = len(self._initial_data[0])
@@ -272,6 +281,7 @@ class LogarithmFunction(SolutionFunction):
         self._function_solution = Equation(
             self._a * ln(x_symbol) + self._b
         )
+        self._is_calc = True
         return self._form_result()
 
 
@@ -294,6 +304,7 @@ class PowerFunction(SolutionFunction):
         self._function_solution = Equation(
             self._a * x_symbol ** self._b
         )
+        self._is_calc = True
         return self._form_result()
 
 
@@ -324,6 +335,8 @@ def draw(functions: iter, initial_data: list) -> None:
     x_symbol = Symbol('x')
     x_values = numpy.arange(initial_data[0][0] - 0.5, initial_data[0][-1] + 0.5, 0.01)
     for func in functions:
+        if not func.is_calc:
+            continue
         y_values = [func.function_solution.equation_func.subs(x_symbol, x_iter) for x_iter in x_values]
         plt.plot(x_values, y_values, linestyle='--', label=f"${func.kind_function}$")
     plt.legend(loc='upper left')
@@ -352,8 +365,11 @@ def main():
     output_manager: OutputManager = OutputManager()
     output_manager.choice_method_output()
     for solution_function in solution_functions:
-        output_manager.output(f"{solution_function.calc()}\n")
-        output_manager.output(solution_function.output_result())
+        try:
+            output_manager.output(f"{solution_function.calc()}\n")
+            output_manager.output(solution_function.output_result())
+        except ValueError:
+            output_manager.output(f"у функции {solution_function.kind_function} недопустимый аргумент")
     output_manager.output(f"{create_table_result(solution_functions)}\n")
     output_manager.output(find_best_function(solution_functions))
     draw(solution_functions, initial_data)
