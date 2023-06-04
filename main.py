@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from prettytable import PrettyTable
 from sympy import diff, latex, sin, exp, Symbol
 
-from manager_io import InputManager, OutputManager
+from io import InputManager, OutputManager
 
 
 class Dot:
@@ -89,7 +89,9 @@ def draw(functions: iter, initial_data: list) -> None:
 
 def main():
     input_manager: InputManager = InputManager()
-    initial_data: list = input_manager.input()
+    initial_data = input_manager.input()
+    if initial_data is None:
+        return
     solution_functions = (
         LinearFunction(initial_data),
     )
