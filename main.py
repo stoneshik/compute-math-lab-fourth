@@ -27,7 +27,7 @@ class Equation:
 
 class SolutionFunction(ABC):
     """
-    Базовый абстрактный класс для классов реализаций методов решения ур-й
+    Базовый абстрактный класс для классов реализаций аппроксимирующих функций
     """
 
     def __init__(self, field_names_table: list, kind_function: str, initial_data: list) -> None:
@@ -128,6 +128,9 @@ class SolutionFunction(ABC):
 
 
 class LinearFunction(SolutionFunction):
+    """
+    Класс линейной аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P1(x)=ax+b', 'εi'], 'phi = ax + b', initial_data)
         self._r: float = self._calc_r()  # коэффициент корреляции
@@ -163,6 +166,9 @@ class LinearFunction(SolutionFunction):
 
 
 class SquareFunction(SolutionFunction):
+    """
+    Класс квадратичной аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P2(x)=ax^2+bx+c', 'εi'], 'phi = ax^2+bx+c', initial_data)
 
@@ -197,6 +203,9 @@ class SquareFunction(SolutionFunction):
 
 
 class CubeFunction(SolutionFunction):
+    """
+    Класс кубической аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P3(x)=ax^3+bx^2+cx+d', 'εi'], 'phi = ax^3+bx^2+cx+d', initial_data)
 
@@ -240,6 +249,9 @@ class CubeFunction(SolutionFunction):
 
 
 class ExpFunction(SolutionFunction):
+    """
+    Класс экспоненциальной аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P(x)=a*e^{bx}', 'εi'], 'phi = a*e^{bx}', initial_data)
 
@@ -263,6 +275,9 @@ class ExpFunction(SolutionFunction):
 
 
 class LogarithmFunction(SolutionFunction):
+    """
+    Класс логарифмической аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P(x)=a*lnx+b', 'εi'], 'phi = a*lnx+b', initial_data)
 
@@ -286,6 +301,9 @@ class LogarithmFunction(SolutionFunction):
 
 
 class PowerFunction(SolutionFunction):
+    """
+    Класс показательной аппроксимирующей функции
+    """
     def __init__(self, initial_data: list) -> None:
         super().__init__(['i', 'X', 'Y', 'P(x)=a*x^b', 'εi'], 'phi = a*x^b', initial_data)
 
