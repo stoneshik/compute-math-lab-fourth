@@ -18,7 +18,7 @@ class InputManager:
             return self._input_from_file()
         return self._input_from_console()
 
-    def _input_from_console(self) -> list:
+    def _input_from_console(self) -> (list, None):
         while True:
             n: int = int(input("Введите количество вводимых точек...\n"))
             if not (8 <= n <= 12):
@@ -29,6 +29,9 @@ class InputManager:
         print("Вводите значения X и Y через пробел")
         for _ in range(n):
             x, y = (float(i) for i in input().split())
+            if len(initial_data[0]) > 0 and x <= initial_data[0][-1]:
+                print("Введенно X, которое меньше или равно предыдущему")
+                return None
             initial_data[0].append(x)
             initial_data[1].append(y)
         return initial_data
@@ -42,6 +45,9 @@ class InputManager:
                 return None
             for _ in range(n):
                 x, y = (float(i) for i in file.readline().split())
+                if len(initial_data[0]) > 0 and x <= initial_data[0][-1]:
+                    print("Введенно X, которое меньше или равно предыдущему")
+                    return None
                 initial_data[0].append(x)
                 initial_data[1].append(y)
         return initial_data
